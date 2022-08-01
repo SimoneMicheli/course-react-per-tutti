@@ -22,7 +22,8 @@
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
 		"lint": "eslint .",
-		"lint:fix": "eslint . --fix"
+		"lint:fix": "eslint . --fix",
+		"prepare": "husky install"
 	},
 	"browserslist": {
 		"production": [
@@ -37,6 +38,8 @@
 		]
 	},
 	"devDependencies": {
+		"@commitlint/cli": "^17.0.3",
+		"@commitlint/config-conventional": "^17.0.3",
 		"@typescript-eslint/eslint-plugin": "^5.31.0",
 		"@typescript-eslint/parser": "^5.31.0",
 		"eslint": "^8.21.0",
@@ -47,6 +50,7 @@
 		"eslint-plugin-promise": "^6.0.0",
 		"eslint-plugin-react": "^7.30.1",
 		"eslint-plugin-unused-imports": "^2.0.0",
+		"husky": "^8.0.1",
 		"prettier": "^2.7.1"
 	}
 }

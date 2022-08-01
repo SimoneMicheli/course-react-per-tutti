@@ -4,3 +4,5 @@ node_modules
 dist
 jest.config.js
 .eslintrc.js
+commitlint.config.js
+.husky
