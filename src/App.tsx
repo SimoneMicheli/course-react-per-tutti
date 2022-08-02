@@ -16,13 +16,13 @@ function App() {
 
       <div className="container">
         <section className="row justify-content-center page-title">
-          <div className="col-12 col-md-6 text-center">
+          <div className="col-12 col-lg-6 text-center">
             <h1>React per tutti (o quasi)</h1>
           </div>
         </section>
 
         <section className="row justify-content-center">
-          <div className="col-12 col-md-6">
+          <div className="col-12 col-md-8 ">
             <form>
               <div className="input-group">
                 <div className="form-floating">
@@ -36,18 +36,27 @@ function App() {
         </section>
 
         <section className="row justify-content-center mt-4">
-          <div className="col-12 col-md-6 d-flex justify-content-between align-items-center">
-            <span>Completed 2 of 4</span>
-            <div className="btn-group">
-              <button className="btn btn-sm btn-secondary">All</button>
-              <button className="btn btn-sm btn-outline-secondary">Completed</button>
-              <button className="btn btn-sm btn-outline-secondary">Not Completed</button>
+          <div className="col-12 col-md-8">
+            <div className="row">
+              <div className="col-12 col-lg-9 btn-toolbar">
+                <div className="btn-group">
+                  <button className="btn btn-sm btn-primary">Tutti</button>
+                  <button className="btn btn-sm btn-outline-primary">Completati</button>
+                  <button className="btn btn-sm btn-outline-primary">Non completati</button>
+                </div>
+                <div className="btn-group ms-1">
+                  <button className="btn btn-sm btn-outline-secondary">Rimuovi completati</button>
+                </div>
+              </div>
+              <div className="col-12 col-lg-3 d-lg-flex justify-content-end align-items-center mt-2 mt-lg-0">
+                <span>Completati 2 di 4</span>
+              </div>
             </div>
           </div>
         </section>
 
         <section className="row justify-content-center">
-          <div className="col-12 col-md-6">
+          <div className="col-12 col-md-8">
             <hr />
             <ul className="list-group">
               <li className="list-group-item d-flex justify-content-between align-items-center">
