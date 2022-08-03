@@ -1,7 +1,44 @@
-import React from "react"
+import React, { useReducer, useState } from "react"
 import "./App.css"
+import AddToDo from "./components/AddToDo"
+import ToDoList from "./components/ToDoList"
+import { ToDoType } from "./models/todo"
+
+const InitialToDos: Array<ToDoType> = [
+  { title: "To do 1", completed: false, created_at: new Date() },
+  { title: "To do 2", completed: true, created_at: new Date() },
+]
+
+function cleanupCompleted(todoList: Array<ToDoType>) {
+  return todoList.filter((todo) => todo.completed === false)
+}
 
 function App() {
+  const [toDos, setToDos] = useState<Array<ToDoType>>(InitialToDos)
+
+  function onAdd(title: string) {
+    setToDos((prevToDos) => [...prevToDos, { title, completed: false, created_at: new Date() }])
+  }
+
+  const onToDoClick = (index: number) => {
+    setToDos((prevToDos) => {
+      return [
+        ...prevToDos.slice(0, index),
+        { ...prevToDos[index], completed: !prevToDos[index].completed },
+        ...prevToDos.slice(index + 1),
+      ]
+    })
+  }
+
+  const onDelete = (index: number) => {
+    setToDos((prevToDos) => [...prevToDos.slice(0, index), ...prevToDos.slice(index + 1)])
+  }
+
+  const onCleanup = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    setToDos((prevToDos) => cleanupCompleted(prevToDos))
+  }
+
   return (
     <>
       <nav className="navbar navbar-dark bg-primary sticky-top">
@@ -23,15 +60,7 @@ function App() {
 
         <section className="row justify-content-center">
           <div className="col-12 col-md-8 ">
-            <form>
-              <div className="input-group">
-                <div className="form-floating">
-                  <input type="text" id="todo-input" placeholder="Inserisci il todo" className="form-control" />
-                  <label htmlFor="todo-input">Inserisci il todo</label>
-                </div>
-                <button className="btn btn-primary">Aggiungi</button>
-              </div>
-            </form>
+            <AddToDo onAdd={onAdd} />
           </div>
         </section>
 
@@ -45,7 +74,9 @@ function App() {
                   <button className="btn btn-sm btn-outline-primary">Non completati</button>
                 </div>
                 <div className="btn-group ms-1">
-                  <button className="btn btn-sm btn-outline-secondary">Rimuovi completati</button>
+                  <button className="btn btn-sm btn-outline-secondary" onClick={onCleanup}>
+                    Rimuovi completati
+                  </button>
                 </div>
               </div>
               <div className="col-12 col-lg-3 d-lg-flex justify-content-end align-items-center mt-2 mt-lg-0">
@@ -58,22 +89,7 @@ function App() {
         <section className="row justify-content-center">
           <div className="col-12 col-md-8">
             <hr />
-            <ul className="list-group">
-              <li className="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                  <input type="checkbox" className="form-check-input me-1" />
-                  <label className="form-check-label">Item1</label>
-                </div>
-                <div className="btn-group">
-                  <button className="btn btn-link text-black-50">
-                    <i className="edit"></i>
-                  </button>
-                  <button className="btn btn-link text-black-50">
-                    <i className="trash"></i>
-                  </button>
-                </div>
-              </li>
-            </ul>
+            <ToDoList items={toDos} onClick={onToDoClick} onDelete={onDelete} />
           </div>
         </section>
       </div>
