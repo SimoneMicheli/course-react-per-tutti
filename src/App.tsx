@@ -7,10 +7,6 @@ function App() {
       <nav className="navbar navbar-dark bg-primary sticky-top">
         <div className="container">
           <span className="navbar-text">React per tutti (o quasi)</span>
-          <div className="position-relative">
-            <i className="bi bi-bell-fill fs-4"></i>
-            <span className="badge rounded-pill bg-danger position-absolute top-0 end-20">1</span>
-          </div>
         </div>
       </nav>
 

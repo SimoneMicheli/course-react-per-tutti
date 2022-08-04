@@ -1,7 +1,7 @@
 # don't ever lint node_modules
 node_modules
 # don't lint build output (make sure it's set to your correct build folder name)
-dist
+build
 jest.config.js
 .eslintrc.js
 commitlint.config.js
