@@ -1,22 +1,36 @@
-import React, { useReducer, useState } from "react"
+import React, { useState } from "react"
 import "./App.css"
+import cn from "classnames"
 import AddToDo from "./components/AddToDo"
 import ToDoList from "./components/ToDoList"
-import { ToDoType } from "./models/todo"
+import * as Models from "./models"
 
-const InitialToDos: Array<ToDoType> = [
+const InitialToDos: Array<Models.ToDo> = [
   { title: "To do 1", completed: false, created_at: new Date() },
   { title: "To do 2", completed: true, created_at: new Date() },
 ]
 
-function cleanupCompleted(todoList: Array<ToDoType>) {
+function cleanupCompleted(todoList: Array<Models.ToDo>) {
   return todoList.filter((todo) => todo.completed === false)
 }
 
-function App() {
-  const [toDos, setToDos] = useState<Array<ToDoType>>(InitialToDos)
+function filterToDos(todoList: Array<Models.ToDo>, filter: Models.Filter) {
+  switch (filter) {
+    case "COMPLETED":
+      return todoList.filter((todo) => todo.completed === true)
+    case "NOT_COMPLETED":
+      return todoList.filter((todoList) => todoList.completed === false)
+    case "ALL":
+    default:
+      return todoList
+  }
+}
 
-  function onAdd(title: string) {
+function App() {
+  const [toDos, setToDos] = useState<Array<Models.ToDo>>(InitialToDos)
+  const [filter, setFilter] = useState<Models.Filter>("ALL")
+
+  const onAdd = (title: string) => {
     setToDos((prevToDos) => [...prevToDos, { title, completed: false, created_at: new Date() }])
   }
 
@@ -37,6 +51,10 @@ function App() {
   const onCleanup = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     setToDos((prevToDos) => cleanupCompleted(prevToDos))
+  }
+
+  const onFilterChange = (filter: Models.Filter) => {
+    setFilter(filter)
   }
 
   return (
@@ -69,9 +87,39 @@ function App() {
             <div className="row">
               <div className="col-12 col-lg-9 btn-toolbar">
                 <div className="btn-group">
-                  <button className="btn btn-sm btn-primary">Tutti</button>
-                  <button className="btn btn-sm btn-outline-primary">Completati</button>
-                  <button className="btn btn-sm btn-outline-primary">Non completati</button>
+                  <button
+                    className={cn("btn btn-sm", {
+                      "btn-primary": filter === "ALL",
+                      "btn-outline-primary": filter !== "ALL",
+                    })}
+                    onClick={() => {
+                      onFilterChange("ALL")
+                    }}
+                  >
+                    Tutti
+                  </button>
+                  <button
+                    className={cn("btn btn-sm", {
+                      "btn-primary": filter === "COMPLETED",
+                      "btn-outline-primary": filter !== "COMPLETED",
+                    })}
+                    onClick={() => {
+                      onFilterChange("COMPLETED")
+                    }}
+                  >
+                    Completati
+                  </button>
+                  <button
+                    className={cn("btn btn-sm", {
+                      "btn-primary": filter === "NOT_COMPLETED",
+                      "btn-outline-primary": filter !== "NOT_COMPLETED",
+                    })}
+                    onClick={() => {
+                      onFilterChange("NOT_COMPLETED")
+                    }}
+                  >
+                    Non completati
+                  </button>
                 </div>
                 <div className="btn-group ms-1">
                   <button className="btn btn-sm btn-outline-secondary" onClick={onCleanup}>
@@ -80,7 +128,9 @@ function App() {
                 </div>
               </div>
               <div className="col-12 col-lg-3 d-lg-flex justify-content-end align-items-center mt-2 mt-lg-0">
-                <span>Completati 2 di 4</span>
+                <span>
+                  Completati {toDos.filter((todo) => todo.completed === true).length} di {toDos.length}
+                </span>
               </div>
             </div>
           </div>
@@ -89,7 +139,7 @@ function App() {
         <section className="row justify-content-center">
           <div className="col-12 col-md-8">
             <hr />
-            <ToDoList items={toDos} onClick={onToDoClick} onDelete={onDelete} />
+            <ToDoList items={filterToDos(toDos, filter)} onClick={onToDoClick} onDelete={onDelete} />
           </div>
         </section>
       </div>

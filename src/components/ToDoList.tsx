@@ -1,9 +1,9 @@
 import React from "react"
-import { ToDoType } from "../models/todo"
+import { ToDo } from "../models"
 import cn from "classnames"
 
 interface ToDoListProps {
-  items: Array<ToDoType>
+  items: Array<ToDo>
   onClick: (item: number) => void
   onDelete: (item: number) => void
 }
@@ -25,7 +25,7 @@ export default function ToDoList(props: ToDoListProps) {
               type="checkbox"
               className="form-check-input me-1"
               checked={item.completed}
-              onClick={() => {
+              onChange={() => {
                 onClick(index)
               }}
             />
