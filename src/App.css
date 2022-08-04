@@ -8,7 +8,14 @@ body {
 
 .page-title{
   font-family: "Pacifico", coursive;
-  margin: 4rem 0 4rem 0;
+  padding: 4rem 0 4rem 0;
+}
+
+.page-title span{
+  background-clip: text;
+  text-fill-color: transparent;
+  -webkit-text-fill-color: transparent;
+  background-image: linear-gradient(90deg, rgba(232,12,235,1) 0%, rgba(8,199,222,1) 100%);
 }
 
 .edit::before{

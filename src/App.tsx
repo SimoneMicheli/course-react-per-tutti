@@ -70,9 +70,11 @@ function App() {
       </nav>
 
       <div className="container">
-        <section className="row justify-content-center page-title">
+        <section className="row justify-content-center ">
           <div className="col-12 col-lg-6 text-center">
-            <h1>React per tutti (o quasi)</h1>
+            <h1 className="page-title">
+              <span>React per tutti (o quasi)</span>
+            </h1>
           </div>
         </section>
 
