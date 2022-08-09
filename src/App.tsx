@@ -5,6 +5,7 @@ import AddToDo from "./components/AddToDo"
 import ToDoList from "./components/ToDoList"
 import * as Models from "./models"
 import FilterMenu from "./components/FilterMenu"
+import PieChart from "./components/PieChart"
 
 const InitialToDos: Array<Models.ToDo> = [
   { title: "To do 1", completed: false, created_at: new Date() },
@@ -100,6 +101,15 @@ function App() {
           <div className="col-12 col-md-8">
             <hr />
             <ToDoList items={filterToDos(toDos, filter)} onClick={onToDoClick} onDelete={onDelete} />
+          </div>
+        </section>
+
+        <section className="row justify-content-center">
+          <div className="col-12 col-md-3">
+            <PieChart
+              completed={toDos.filter((todo) => todo.completed === true).length}
+              notCompleted={toDos.length - toDos.filter((todo) => todo.completed === true).length}
+            />
           </div>
         </section>
       </div>
