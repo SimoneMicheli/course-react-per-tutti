@@ -4,6 +4,7 @@ import cn from "classnames"
 import AddToDo from "./components/AddToDo"
 import ToDoList from "./components/ToDoList"
 import * as Models from "./models"
+import FilterMenu from "./components/FilterMenu"
 
 const InitialToDos: Array<Models.ToDo> = [
   { title: "To do 1", completed: false, created_at: new Date() },
@@ -84,46 +85,7 @@ function App() {
           <div className="col-12 col-md-8">
             <div className="row">
               <div className="col-12 col-lg-9 btn-toolbar">
-                <div className="btn-group">
-                  <button
-                    className={cn("btn btn-sm", {
-                      "btn-primary": filter === "ALL",
-                      "btn-outline-primary": filter !== "ALL",
-                    })}
-                    onClick={() => {
-                      onFilterChange("ALL")
-                    }}
-                  >
-                    Tutti
-                  </button>
-                  <button
-                    className={cn("btn btn-sm", {
-                      "btn-primary": filter === "COMPLETED",
-                      "btn-outline-primary": filter !== "COMPLETED",
-                    })}
-                    onClick={() => {
-                      onFilterChange("COMPLETED")
-                    }}
-                  >
-                    Completati
-                  </button>
-                  <button
-                    className={cn("btn btn-sm", {
-                      "btn-primary": filter === "NOT_COMPLETED",
-                      "btn-outline-primary": filter !== "NOT_COMPLETED",
-                    })}
-                    onClick={() => {
-                      onFilterChange("NOT_COMPLETED")
-                    }}
-                  >
-                    Non completati
-                  </button>
-                </div>
-                <div className="btn-group ms-1">
-                  <button className="btn btn-sm btn-outline-secondary" onClick={onCleanup}>
-                    Rimuovi completati
-                  </button>
-                </div>
+                <FilterMenu filter={filter} onCleanup={onCleanup} onFilterChange={onFilterChange} />
               </div>
               <div className="col-12 col-lg-3 d-lg-flex justify-content-end align-items-center mt-2 mt-lg-0">
                 <span>
