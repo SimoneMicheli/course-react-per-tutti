@@ -8,8 +8,9 @@ interface FilterMenuProps {
   onCleanup: (e: MouseEvent<HTMLButtonElement>) => void
 }
 
-export default function FilterMenu(props: FilterMenuProps) {
+function FilterMenu(props: FilterMenuProps) {
   const { filter, onCleanup, onFilterChange } = props
+
   return (
     <>
       <div className="btn-group">
@@ -55,3 +56,5 @@ export default function FilterMenu(props: FilterMenuProps) {
     </>
   )
 }
+
+export default React.memo(FilterMenu)
