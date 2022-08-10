@@ -1,6 +1,5 @@
 import React, { useState } from "react"
 import "./App.css"
-import cn from "classnames"
 import AddToDo from "./components/AddToDo"
 import ToDoList from "./components/ToDoList"
 import * as Models from "./models"
