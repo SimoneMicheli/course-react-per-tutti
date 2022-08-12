@@ -1,7 +1,66 @@
-import React from "react"
+import React, { useCallback, useMemo, useState } from "react"
 import "./App.css"
+import AddToDo from "./components/AddToDo"
+import ToDoList from "./components/ToDoList"
+import * as Models from "./models"
+import FilterMenu from "./components/FilterMenu"
+import PieChart from "./components/PieChart"
+
+const InitialToDos: Array<Models.ToDo> = [
+  { title: "To do 1", completed: false, created_at: new Date() },
+  { title: "To do 2", completed: true, created_at: new Date() },
+]
+
+function cleanupCompleted(todoList: Array<Models.ToDo>) {
+  return todoList.filter((todo) => todo.completed === false)
+}
+
+function filterToDos(todoList: Array<Models.ToDo>, filter: Models.Filter) {
+  switch (filter) {
+    case "COMPLETED":
+      return todoList.filter((todo) => todo.completed === true)
+    case "NOT_COMPLETED":
+      return todoList.filter((todoList) => todoList.completed === false)
+    case "ALL":
+    default:
+      return todoList
+  }
+}
 
 function App() {
+  const [toDos, setToDos] = useState<Array<Models.ToDo>>(InitialToDos)
+  const [filter, setFilter] = useState<Models.Filter>("ALL")
+
+  const onAdd = (title: string) => {
+    setToDos((prevToDos) => [...prevToDos, { title, completed: false, created_at: new Date() }])
+  }
+
+  const onToDoClick = (index: number) => {
+    setToDos((prevToDos) => {
+      return [
+        ...prevToDos.slice(0, index),
+        { ...prevToDos[index], completed: !prevToDos[index].completed },
+        ...prevToDos.slice(index + 1),
+      ]
+    })
+  }
+
+  const onDelete = (index: number) => {
+    setToDos((prevToDos) => [...prevToDos.slice(0, index), ...prevToDos.slice(index + 1)])
+  }
+
+  const onCleanup = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    setToDos((prevToDos) => cleanupCompleted(prevToDos))
+  }, [])
+
+  const onFilterChange = useCallback((filter: Models.Filter) => {
+    setFilter(filter)
+  }, [])
+
+  const completedList = useMemo(() => filterToDos(toDos, "COMPLETED"), [toDos])
+  const filteredList = useMemo(() => filterToDos(toDos, filter), [toDos, filter])
+
   return (
     <>
       <nav className="navbar navbar-dark bg-primary sticky-top">
@@ -21,15 +80,7 @@ function App() {
 
         <section className="row justify-content-center">
           <div className="col-12 col-md-8 ">
-            <form>
-              <div className="input-group">
-                <div className="form-floating">
-                  <input type="text" id="todo-input" placeholder="Inserisci il todo" className="form-control" />
-                  <label htmlFor="todo-input">Inserisci il todo</label>
-                </div>
-                <button className="btn btn-primary">Aggiungi</button>
-              </div>
-            </form>
+            <AddToDo onAdd={onAdd} />
           </div>
         </section>
 
@@ -37,17 +88,15 @@ function App() {
           <div className="col-12 col-md-8">
             <div className="row">
               <div className="col-12 col-lg-9 btn-toolbar">
-                <div className="btn-group">
-                  <button className="btn btn-sm btn-primary">Tutti</button>
-                  <button className="btn btn-sm btn-outline-primary">Completati</button>
-                  <button className="btn btn-sm btn-outline-primary">Non completati</button>
-                </div>
-                <div className="btn-group ms-1">
-                  <button className="btn btn-sm btn-outline-secondary">Rimuovi completati</button>
-                </div>
+                {/** it's important to wrap onCleanup and onFilterChange in useCallback hook, otherwise the reference
+                 * to those two variable will continue to change over render and React.memo will continue to re-render the FilterMenu
+                 */}
+                <FilterMenu filter={filter} onCleanup={onCleanup} onFilterChange={onFilterChange} />
               </div>
               <div className="col-12 col-lg-3 d-lg-flex justify-content-end align-items-center mt-2 mt-lg-0">
-                <span>Completati 2 di 4</span>
+                <span>
+                  Completati {completedList.length} di {toDos.length}
+                </span>
               </div>
             </div>
           </div>
@@ -56,22 +105,13 @@ function App() {
         <section className="row justify-content-center">
           <div className="col-12 col-md-8">
             <hr />
-            <ul className="list-group">
-              <li className="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                  <input type="checkbox" className="form-check-input me-1" />
-                  <label className="form-check-label">Item1</label>
-                </div>
-                <div className="btn-group">
-                  <button className="btn btn-link text-black-50">
-                    <i className="edit"></i>
-                  </button>
-                  <button className="btn btn-link text-black-50">
-                    <i className="trash"></i>
-                  </button>
-                </div>
-              </li>
-            </ul>
+            <ToDoList items={filteredList} onClick={onToDoClick} onDelete={onDelete} />
+          </div>
+        </section>
+
+        <section className="row justify-content-center">
+          <div className="col-12 col-md-3">
+            <PieChart completed={completedList.length} notCompleted={toDos.length - completedList.length} />
           </div>
         </section>
       </div>

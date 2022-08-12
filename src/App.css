@@ -49,3 +49,7 @@ body {
 .trash:hover::before{
   content: "\F5DD";
 }
+
+li.completed div label{
+  text-decoration: line-through;
+}
