@@ -1,10 +1,10 @@
-import React, { useState } from "react"
+import React, { useCallback, useMemo, useState } from "react"
 import "./App.css"
-import cn from "classnames"
 import AddToDo from "./components/AddToDo"
 import ToDoList from "./components/ToDoList"
 import * as Models from "./models"
 import FilterMenu from "./components/FilterMenu"
+import PieChart from "./components/PieChart"
 
 const InitialToDos: Array<Models.ToDo> = [
   { title: "To do 1", completed: false, created_at: new Date() },
@@ -49,14 +49,17 @@ function App() {
     setToDos((prevToDos) => [...prevToDos.slice(0, index), ...prevToDos.slice(index + 1)])
   }
 
-  const onCleanup = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const onCleanup = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     setToDos((prevToDos) => cleanupCompleted(prevToDos))
-  }
+  }, [])
 
-  const onFilterChange = (filter: Models.Filter) => {
+  const onFilterChange = useCallback((filter: Models.Filter) => {
     setFilter(filter)
-  }
+  }, [])
+
+  const completedList = useMemo(() => filterToDos(toDos, "COMPLETED"), [toDos])
+  const filteredList = useMemo(() => filterToDos(toDos, filter), [toDos, filter])
 
   return (
     <>
@@ -85,11 +88,14 @@ function App() {
           <div className="col-12 col-md-8">
             <div className="row">
               <div className="col-12 col-lg-9 btn-toolbar">
+                {/** it's important to wrap onCleanup and onFilterChange in useCallback hook, otherwise the reference
+                 * to those two variable will continue to change over render and React.memo will continue to re-render the FilterMenu
+                 */}
                 <FilterMenu filter={filter} onCleanup={onCleanup} onFilterChange={onFilterChange} />
               </div>
               <div className="col-12 col-lg-3 d-lg-flex justify-content-end align-items-center mt-2 mt-lg-0">
                 <span>
-                  Completati {toDos.filter((todo) => todo.completed === true).length} di {toDos.length}
+                  Completati {completedList.length} di {toDos.length}
                 </span>
               </div>
             </div>
@@ -99,7 +105,13 @@ function App() {
         <section className="row justify-content-center">
           <div className="col-12 col-md-8">
             <hr />
-            <ToDoList items={filterToDos(toDos, filter)} onClick={onToDoClick} onDelete={onDelete} />
+            <ToDoList items={filteredList} onClick={onToDoClick} onDelete={onDelete} />
+          </div>
+        </section>
+
+        <section className="row justify-content-center">
+          <div className="col-12 col-md-3">
+            <PieChart completed={completedList.length} notCompleted={toDos.length - completedList.length} />
           </div>
         </section>
       </div>
