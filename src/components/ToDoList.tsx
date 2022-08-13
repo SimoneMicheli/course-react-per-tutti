@@ -6,10 +6,33 @@ interface ToDoListProps {
   items: Array<ToDo>
   onClick: (item: number) => void
   onDelete: (item: number) => void
+  isLoading: boolean
 }
 
 export default function ToDoList(props: ToDoListProps) {
-  const { items, onClick, onDelete } = props
+  const { items, onClick, onDelete, isLoading } = props
+
+  if (isLoading)
+    return (
+      <ul className="list-group">
+        {[1, 2, 3].map((_, i) => (
+          <li key={i} className="list-group-item d-flex justify-content-between align-items-center">
+            <div className="flex-grow-1 placeholder-glow">
+              <span className="placeholder placeholder-lg col-6" />
+            </div>
+          </li>
+        ))}
+      </ul>
+    )
+
+  if (items.length === 0 && !isLoading)
+    return (
+      <h3 className="text-center my-4">
+        <p className="opacity-50">
+          <small>Lista Vuota</small>
+        </p>
+      </h3>
+    )
 
   return (
     <ul className="list-group">
