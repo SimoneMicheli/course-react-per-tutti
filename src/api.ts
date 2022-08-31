@@ -1,5 +1,6 @@
 import axios from "axios"
 import { ToDo } from "./models"
+import { parseJSON } from "date-fns"
 
 async function waitMinimum<T>(fn: Promise<T> | (() => Promise<T>), time: number) {
   const rx = await Promise.all([
@@ -14,7 +15,7 @@ export function getToDoList() {
     axios
       .get<Array<ToDo>>("http://localhost:5000/api/todo/")
       .then((resp) => {
-        return resp.data
+        return resp.data.map((todo) => ({ ...todo, created_at: parseJSON(todo.created_at) }))
       })
       .catch((e) => {
         return Promise.reject(e.message)
