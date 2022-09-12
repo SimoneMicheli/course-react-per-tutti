@@ -1,3 +1,8 @@
-node_modules
-dist
+.gitignore
 .husky
+.vscode
+build
+dist
+node_modules
+package-lock.json
+package.json
