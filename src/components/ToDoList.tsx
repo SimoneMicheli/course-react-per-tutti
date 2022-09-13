@@ -1,6 +1,5 @@
 import React, { useRef } from "react"
 import { ToDo } from "../models"
-import cn from "classnames"
 import ToDoElement from "./ToDoElement"
 
 interface ToDoListProps {
