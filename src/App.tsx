@@ -5,24 +5,23 @@ import ToDoList from "./components/ToDoList"
 import * as Models from "./models"
 import FilterMenu from "./components/FilterMenu"
 import PieChart from "./components/PieChart"
-import { getToDoList } from "./api"
+import { createToDo, deleteMultipleToDo, deleteToDo, getToDoList, updateToDo } from "./api"
 import ErrorWrapper from "./components/ErrorWrapper"
 
-/* const InitialToDos: Array<Models.ToDo> = [
-  { title: "To do 1", completed: false, created_at: new Date() },
-  { title: "To do 2", completed: true, created_at: new Date() },
-] */
+function filterCompleted(todoList: Array<Models.ToDo>) {
+  return todoList.filter((todo) => todo.completed === true)
+}
 
-function cleanupCompleted(todoList: Array<Models.ToDo>) {
+function filterNotCompleted(todoList: Array<Models.ToDo>) {
   return todoList.filter((todo) => todo.completed === false)
 }
 
 function filterToDos(todoList: Array<Models.ToDo>, filter: Models.Filter) {
   switch (filter) {
     case "COMPLETED":
-      return todoList.filter((todo) => todo.completed === true)
+      return filterCompleted(todoList)
     case "NOT_COMPLETED":
-      return todoList.filter((todoList) => todoList.completed === false)
+      return filterNotCompleted(todoList)
     case "ALL":
     default:
       return todoList
@@ -35,28 +34,54 @@ function App() {
   const [filter, setFilter] = useState<Models.Filter>("ALL")
 
   const onAdd = (title: string) => {
-    setToDos((prevToDos) => (prevToDos ? [...prevToDos, { title, completed: false, created_at: new Date() }] : null))
+    const prevToDos = toDos
+    setToDos(null)
+    setError(null)
+    createToDo({ title, completed: false, created_at: new Date() })
+      .then((todo) => setToDos(prevToDos ? [...prevToDos, todo] : null))
+      .catch((e) => setError(e))
   }
 
-  const onToDoClick = (index: number) => {
-    setToDos((prevToDos) => {
-      if (!prevToDos) return null
-      return [
-        ...prevToDos.slice(0, index),
-        { ...prevToDos[index], completed: !prevToDos[index].completed },
-        ...prevToDos.slice(index + 1),
-      ]
-    })
+  const onToDoClick = async (index: number) => {
+    if (!toDos) return
+    // toggle to do complete and seve it to server
+    const prevToDos = toDos
+    setToDos(null)
+    try {
+      const updatedToDo = { ...prevToDos[index], completed: !prevToDos[index].completed }
+      await updateToDo(updatedToDo)
+      setToDos([...prevToDos.slice(0, index), updatedToDo, ...prevToDos.slice(index + 1)])
+    } catch (e) {
+      setError(e as string)
+    }
   }
 
-  const onDelete = (index: number) => {
-    setToDos((prevToDos) => (prevToDos ? [...prevToDos.slice(0, index), ...prevToDos.slice(index + 1)] : null))
+  const onDelete = async (index: number) => {
+    try {
+      const prevToDos = toDos
+      setToDos(null)
+      await deleteToDo(toDos?.[index])
+      setToDos(prevToDos ? [...prevToDos.slice(0, index), ...prevToDos.slice(index + 1)] : null)
+    } catch (e) {
+      setError(e as string)
+    }
   }
 
-  const onCleanup = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-    setToDos((prevToDos) => (prevToDos ? cleanupCompleted(prevToDos) : null))
-  }, [])
+  const onCleanup = useCallback(
+    async (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault()
+      if (!toDos) return
+      const prevToDos = toDos
+      setToDos(null)
+      try {
+        await deleteMultipleToDo(filterCompleted(prevToDos))
+        setToDos(filterNotCompleted(prevToDos))
+      } catch (e) {
+        setError(e as string)
+      }
+    },
+    [toDos]
+  )
 
   const onFilterChange = useCallback((filter: Models.Filter) => {
     setFilter(filter)

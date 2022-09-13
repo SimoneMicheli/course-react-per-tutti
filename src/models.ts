@@ -4,6 +4,7 @@ type ToDo = {
   created_at: Date
   completed_at?: Date
   description?: string
+  id: string
 }
 
 type Filter = "ALL" | "COMPLETED" | "NOT_COMPLETED"

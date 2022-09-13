@@ -53,3 +53,5 @@ body {
 li.completed div label{
   text-decoration: line-through;
 }
+
+.caption {font-size: .65em;}
