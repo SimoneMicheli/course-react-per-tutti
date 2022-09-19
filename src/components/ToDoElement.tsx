@@ -12,6 +12,7 @@ interface ToDoElementProps {
 }
 
 export default function ToDoElement({ index, todo, onClick, onDelete }: ToDoElementProps) {
+  const now = new Date()
   return (
     <li
       className={cn("list-group-item d-flex justify-content-between align-items-center", {
@@ -32,7 +33,7 @@ export default function ToDoElement({ index, todo, onClick, onDelete }: ToDoElem
         </div>
         <div>
           <span className="caption">
-            Creato {formatDistance(todo.created_at, new Date(), { addSuffix: true, locale: it })}
+            Creato {formatDistance(todo.created_at, now, { addSuffix: true, locale: it })}
           </span>
         </div>
       </div>
