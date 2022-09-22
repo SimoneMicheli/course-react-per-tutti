@@ -32,6 +32,7 @@ function App() {
   const [toDos, setToDos] = useState<Array<Models.ToDo> | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<Models.Filter>("ALL")
+  const [updatingItemsIndex, setUpdatingItemsIndex] = useState<number[]>([])
 
   const onAdd = (title: string) => {
     const prevToDos = toDos
@@ -42,18 +43,34 @@ function App() {
       .catch((e) => setError(e))
   }
 
-  const onToDoClick = async (index: number) => {
+  const onToDoClick = async (itemIndex: number) => {
     if (!toDos) return
-    // toggle to do complete and seve it to server
-    const prevToDos = toDos
-    setToDos(null)
+
     try {
-      const updatedToDo = { ...prevToDos[index], completed: !prevToDos[index].completed }
-      updatedToDo.completed_at = updatedToDo.completed ? new Date() : undefined
-      await updateToDo(updatedToDo)
-      setToDos([...prevToDos.slice(0, index), updatedToDo, ...prevToDos.slice(index + 1)])
+      // make a copy of the updated todo
+      const requiredUpdate = { ...toDos[itemIndex], completed: !toDos[itemIndex].completed }
+      requiredUpdate.completed_at = requiredUpdate.completed ? new Date() : undefined
+      // add the position of the currently updating item to the array
+      setUpdatingItemsIndex((oldArray) => [...oldArray, itemIndex])
+      // send the updated item to the server and get the response
+      const updated = await updateToDo(requiredUpdate)
+      // update the list of to do with the updated status
+      setToDos((oldToDo) => {
+        // todos cant be used here because we need the last update, otherwise the risk is that the todo list
+        // has been updated while the request was in progress to the server, in this case the list status
+        // is overwritten with an old state (when the request was initiated)
+        if (!oldToDo) return oldToDo
+        return [...oldToDo.slice(0, itemIndex), updated, ...oldToDo.slice(itemIndex + 1)]
+      })
     } catch (e) {
       setError(e as string)
+    } finally {
+      // remove the position of the current item from the updating index
+      setUpdatingItemsIndex((oldArray) => {
+        // search te position of the current item index in the updating item array
+        const index = oldArray.findIndex((item) => item === itemIndex)
+        return [...oldArray.slice(0, index), ...oldArray.slice(index + 1, oldArray.length)]
+      })
     }
   }
 
@@ -168,7 +185,13 @@ function App() {
           <section className="row justify-content-center mb-4">
             <div className="col-12 col-md-8">
               <hr />
-              <ToDoList items={filteredList} onClick={onToDoClick} onDelete={onDelete} isLoading={!toDos && !error} />
+              <ToDoList
+                items={filteredList}
+                onClick={onToDoClick}
+                onDelete={onDelete}
+                isLoading={!toDos && !error}
+                updatingItemsIndex={updatingItemsIndex}
+              />
             </div>
           </section>
 
