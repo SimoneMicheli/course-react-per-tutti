@@ -18,7 +18,11 @@ function rejectError(e: Error) {
 }
 
 function parseToDo(todo: ToDo) {
-  return { ...todo, created_at: parseJSON(todo.created_at) }
+  return {
+    ...todo,
+    created_at: parseJSON(todo.created_at),
+    completed_at: todo.completed_at ? parseJSON(todo.completed_at) : undefined,
+  }
 }
 
 const client = axios.create({
