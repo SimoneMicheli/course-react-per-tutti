@@ -7,10 +7,11 @@ interface ToDoListProps {
   onClick: (item: number) => void
   onDelete: (item: number) => void
   isLoading: boolean
+  updatingItemsIndex: number[]
 }
 
 export default function ToDoList(props: ToDoListProps) {
-  const { items, onClick, onDelete, isLoading } = props
+  const { items, onClick, onDelete, isLoading, updatingItemsIndex } = props
 
   /**
    * Store number of items before loding from server
@@ -30,16 +31,7 @@ export default function ToDoList(props: ToDoListProps) {
     return (
       <ul className="list-group">
         {Array(...Array(prevItemLength.current !== 0 ? prevItemLength.current : 3)).map((_, i) => (
-          <li key={i} className="list-group-item d-flex justify-content-between align-items-center">
-            <div className="flex-grow-1 placeholder-glow">
-              <span className="placeholder placeholder-lg col-6" />
-            </div>
-            <div className="btn-group">
-              <button className="btn btn-link opacity-0">
-                <i className="trash"></i>
-              </button>
-            </div>
-          </li>
+          <ItemPlaceholder key={i} index={i} />
         ))}
       </ul>
     )
@@ -55,9 +47,34 @@ export default function ToDoList(props: ToDoListProps) {
 
   return (
     <ul className="list-group">
-      {items.map((item, index) => (
-        <ToDoElement todo={item} index={index} key={index} onClick={onClick} onDelete={onDelete} />
-      ))}
+      {items.map((item, index) =>
+        updatingItemsIndex.includes(index) ? (
+          <ItemPlaceholder index={index} key={index} />
+        ) : (
+          <ToDoElement todo={item} index={index} key={index} onClick={onClick} onDelete={onDelete} />
+        )
+      )}
     </ul>
+  )
+}
+
+function ItemPlaceholder(props: { index: number }) {
+  const width = 6 - 2 * (props.index % 3)
+  return (
+    <li className="list-group-item d-flex justify-content-between align-items-center">
+      <div className="flex-grow-1">
+        <div className="placeholder-glow">
+          <span className={`placeholder placeholder-lg col-${width}`} />
+        </div>
+        <div className="placeholder-glow">
+          <span className={`placeholder placeholder-xs col-1`} />
+        </div>
+      </div>
+      <div className="btn-group">
+        <button className="btn btn-link opacity-0">
+          <i className="trash"></i>
+        </button>
+      </div>
+    </li>
   )
 }
