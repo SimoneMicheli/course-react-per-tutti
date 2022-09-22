@@ -35,6 +35,11 @@ export default function ToDoElement({ index, todo, onClick, onDelete }: ToDoElem
           <span className="caption">
             Creato {formatDistance(todo.created_at, now, { addSuffix: true, locale: it })}
           </span>
+          {todo.completed && todo.completed_at ? (
+            <span className="caption ms-1">
+              - Completato {formatDistance(todo.completed_at, now, { addSuffix: true, locale: it })}
+            </span>
+          ) : null}
         </div>
       </div>
       <div className="btn-group">

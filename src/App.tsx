@@ -49,6 +49,7 @@ function App() {
     setToDos(null)
     try {
       const updatedToDo = { ...prevToDos[index], completed: !prevToDos[index].completed }
+      updatedToDo.completed_at = updatedToDo.completed ? new Date() : undefined
       await updateToDo(updatedToDo)
       setToDos([...prevToDos.slice(0, index), updatedToDo, ...prevToDos.slice(index + 1)])
     } catch (e) {
