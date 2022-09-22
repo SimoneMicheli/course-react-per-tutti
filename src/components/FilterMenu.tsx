@@ -6,10 +6,11 @@ interface FilterMenuProps {
   filter: Filter
   onFilterChange: (filter: Filter) => void
   onCleanup: (e: MouseEvent<HTMLButtonElement>) => void
+  onReload: () => void
 }
 
 function FilterMenu(props: FilterMenuProps) {
-  const { filter, onCleanup, onFilterChange } = props
+  const { filter, onCleanup, onFilterChange, onReload } = props
 
   return (
     <>
@@ -51,6 +52,11 @@ function FilterMenu(props: FilterMenuProps) {
       <div className="btn-group ms-1">
         <button className="btn btn-sm btn-outline-secondary" onClick={onCleanup}>
           Rimuovi completati
+        </button>
+      </div>
+      <div>
+        <button className="btn btn-link ms-1 text-dark" onClick={() => onReload()}>
+          <i className="bi bi-arrow-clockwise"></i>
         </button>
       </div>
     </>
