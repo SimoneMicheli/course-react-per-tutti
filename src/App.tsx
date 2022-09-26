@@ -77,9 +77,8 @@ function App() {
   const onDelete = async (index: number) => {
     try {
       const prevToDos = toDos
-      setToDos(null)
-      await deleteToDo(toDos?.[index])
       setToDos(prevToDos ? [...prevToDos.slice(0, index), ...prevToDos.slice(index + 1)] : null)
+      await deleteToDo(toDos?.[index])
     } catch (e) {
       setError(e as string)
     }
