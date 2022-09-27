@@ -3,6 +3,7 @@ import { ToDo } from "../models"
 import cn from "classnames"
 import { formatDistance } from "date-fns"
 import { it } from "date-fns/locale"
+import { Link } from "react-router-dom"
 
 interface ToDoElementProps {
   index: number
@@ -43,9 +44,10 @@ export default function ToDoElement({ index, todo, onClick, onDelete }: ToDoElem
         </div>
       </div>
       <div className="btn-group">
-        <button className="btn btn-link text-black-50">
+        <Link to={`/todo/${todo.id}`} className="btn btn-link text-black-50">
           <i className="edit"></i>
-        </button>
+        </Link>
+
         <button
           className="btn btn-link text-black-50"
           onClick={(e) => {

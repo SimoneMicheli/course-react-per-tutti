@@ -3,11 +3,35 @@ import ReactDOM from "react-dom/client"
 import "./index.css"
 import App from "./App"
 import reportWebVitals from "./reportWebVitals"
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import EditToDo, { editLoader, EditToDoError } from "./pages/EditToDo"
+import BaseLayout from "./components/BaseLayout"
+import NotFound from "./pages/NotFound"
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <BaseLayout />,
+    children: [
+      {
+        path: "/",
+        element: <App />,
+      },
+      {
+        path: "/todo/:id",
+        element: <EditToDo />,
+        loader: editLoader,
+        errorElement: <EditToDoError />,
+      },
+    ],
+    errorElement: <NotFound />,
+  },
+])
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement)
 root.render(
   <React.StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </React.StrictMode>
 )
 
