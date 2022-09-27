@@ -46,7 +46,30 @@ function Loader() {
   )
 }
 
-export default function EditToDo() {
+function EditToDo({ todo }: { todo: ToDo }) {
+  return (
+    <section className="row justify-content-center">
+      <form className="col-12 col-md-6">
+        <div>
+          <label className="form-label">Titolo</label>
+          <input type="text" className="form-control" value={todo.title} />
+        </div>
+        <div>
+          <label className="form-label mt-2">Descrizione</label>
+          <textarea className="form-control" value={todo.description} />
+        </div>
+        <div className="d-flex justify-content-end mt-4">
+          <Link to="/" className="btn btn-link">
+            Torna alla lista
+          </Link>
+          <button className="btn btn-primary">Aggiorna</button>
+        </div>
+      </form>
+    </section>
+  )
+}
+
+export default function EditToDoPage() {
   const data = useLoaderData() as { todo: ToDo }
 
   return (
@@ -59,26 +82,7 @@ export default function EditToDo() {
       </section>
       <React.Suspense fallback={<Loader />}>
         <Await resolve={data.todo} errorElement={<EditToDoError />}>
-          {(todo: ToDo) => (
-            <section className="row justify-content-center">
-              <form className="col-12 col-md-6">
-                <div>
-                  <label className="form-label">Titolo</label>
-                  <input type="text" className="form-control" value={todo.title} />
-                </div>
-                <div>
-                  <label className="form-label mt-2">Descrizione</label>
-                  <textarea className="form-control" value={todo.description} />
-                </div>
-                <div className="d-flex justify-content-end mt-4">
-                  <Link to="/" className="btn btn-link">
-                    Torna alla lista
-                  </Link>
-                  <button className="btn btn-primary">Aggiorna</button>
-                </div>
-              </form>
-            </section>
-          )}
+          {(todo: ToDo) => <EditToDo todo={todo} />}
         </Await>
       </React.Suspense>
     </div>
