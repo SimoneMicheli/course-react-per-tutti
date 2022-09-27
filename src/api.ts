@@ -2,7 +2,6 @@
 import axios from "axios"
 import { ToDo } from "./models"
 import { parseJSON } from "date-fns"
-import { wait } from "@testing-library/user-event/dist/utils"
 
 const MIN_DELAY = 1000
 

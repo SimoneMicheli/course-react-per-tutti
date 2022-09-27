@@ -1,11 +1,13 @@
 import React from "react"
-import { Link, LoaderFunctionArgs, useLoaderData, useRouteError } from "react-router-dom"
+import { Link, LoaderFunctionArgs, useLoaderData, useRouteError, defer, Await } from "react-router-dom"
 import { getToDo } from "../api"
 import { ToDo } from "../models"
 
 export async function editLoader({ params }: LoaderFunctionArgs) {
   if (!params.id) return Promise.reject(new Error("Invalid id"))
-  return getToDo(params.id)
+  return defer({
+    todo: getToDo(params.id),
+  })
 }
 
 export function EditToDoError() {
@@ -23,26 +25,62 @@ export function EditToDoError() {
   )
 }
 
-export default function EditToDo() {
-  const data = useLoaderData() as ToDo
+function Loader() {
   return (
     <section className="row justify-content-center">
       <form className="col-12 col-md-6">
         <div>
           <label className="form-label">Titolo</label>
-          <input type="text" className="form-control" value={data.title} />
+          <span className="placeholder-glow">
+            <div className="placeholder  col-12 placeholder-lg" />
+          </span>
         </div>
         <div>
-          <label className="form-label">Descrizione</label>
-          <textarea className="form-control" value={data.description} />
-        </div>
-        <div className="d-flex justify-content-end mt-4">
-          <Link to="/" className="btn btn-link">
-            Torna alla lista
-          </Link>
-          <button className="btn btn-primary">Aggiorna</button>
+          <label className="form-label mt-2">Descrizione</label>
+          <span className="placeholder-glow">
+            <div className="placeholder  col-12 placeholder-lg" />
+          </span>
         </div>
       </form>
     </section>
+  )
+}
+
+export default function EditToDo() {
+  const data = useLoaderData() as { todo: ToDo }
+
+  return (
+    <div className="mb-2">
+      <section className="row justify-content-center">
+        <div className="col-12 col-md-6">
+          <h5>Modifica</h5>
+          <hr className="border border-2 border-dark" />
+        </div>
+      </section>
+      <React.Suspense fallback={<Loader />}>
+        <Await resolve={data.todo} errorElement={<EditToDoError />}>
+          {(todo: ToDo) => (
+            <section className="row justify-content-center">
+              <form className="col-12 col-md-6">
+                <div>
+                  <label className="form-label">Titolo</label>
+                  <input type="text" className="form-control" value={todo.title} />
+                </div>
+                <div>
+                  <label className="form-label mt-2">Descrizione</label>
+                  <textarea className="form-control" value={todo.description} />
+                </div>
+                <div className="d-flex justify-content-end mt-4">
+                  <Link to="/" className="btn btn-link">
+                    Torna alla lista
+                  </Link>
+                  <button className="btn btn-primary">Aggiorna</button>
+                </div>
+              </form>
+            </section>
+          )}
+        </Await>
+      </React.Suspense>
+    </div>
   )
 }
