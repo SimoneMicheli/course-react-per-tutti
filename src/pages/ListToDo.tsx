@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react"
-import "./App.css"
-import AddToDo from "./components/AddToDo"
-import ToDoList from "./components/ToDoList"
-import * as Models from "./models"
-import FilterMenu from "./components/FilterMenu"
-import PieChart from "./components/PieChart"
-import { createToDo, deleteMultipleToDo, deleteToDo, getToDoList, updateToDo } from "./api"
-import ErrorWrapper from "./components/ErrorWrapper"
+import "./ListToDo.css"
+import AddToDo from "../components/AddToDo"
+import ToDoList from "../components/ToDoList"
+import * as Models from "../models"
+import FilterMenu from "../components/FilterMenu"
+import PieChart from "../components/PieChart"
+import { createToDo, deleteMultipleToDo, deleteToDo, getToDoList, updateToDo } from "../api"
+import ErrorWrapper from "../components/ErrorWrapper"
 
 function filterCompleted(todoList: Array<Models.ToDo>) {
   return todoList.filter((todo) => todo.completed === true)
@@ -28,7 +28,7 @@ function filterToDos(todoList: Array<Models.ToDo>, filter: Models.Filter) {
   }
 }
 
-function App() {
+function ListToDo() {
   const [toDos, setToDos] = useState<Array<Models.ToDo> | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<Models.Filter>("ALL")
@@ -182,4 +182,4 @@ function App() {
   )
 }
 
-export default App
+export default ListToDo

@@ -93,7 +93,7 @@ export default function EditToDoPage() {
       <section className="row justify-content-center">
         <div className="col-12 col-md-6">
           <h5>Modifica</h5>
-          <hr className="border border-2 border-dark" />
+          <hr className="border border-1 border-dark" />
         </div>
       </section>
       <React.Suspense fallback={<Loader />}>
