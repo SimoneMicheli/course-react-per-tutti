@@ -71,3 +71,13 @@ export function updateToDo(todo: ToDo | undefined) {
     MIN_DELAY
   )
 }
+
+export function getToDo(id: string) {
+  return waitMinimum(
+    client
+      .get(`/${id}`)
+      .then((resp) => parseToDo(resp.data))
+      .catch(rejectError),
+    MIN_DELAY
+  )
+}
