@@ -1,6 +1,6 @@
 /* eslint-disable prefer-promise-reject-errors */
 import axios from "axios"
-import { ToDo } from "./models"
+import { NewToDo, ToDo } from "./models"
 import { parseJSON } from "date-fns"
 
 const MIN_DELAY = 1000
@@ -30,10 +30,10 @@ const client = axios.create({
   timeout: 5000,
 })
 
-export function getToDoList() {
+export function getToDoList(signal?: AbortSignal) {
   return waitMinimum(
     client
-      .get<Array<ToDo>>("/")
+      .get<Array<ToDo>>("/", { signal })
       .then((resp) => {
         return resp.data.map((todo) => parseToDo(todo))
       })
@@ -42,7 +42,7 @@ export function getToDoList() {
   )
 }
 
-export function createToDo(todo: Omit<ToDo, "id">) {
+export function createToDo(todo: NewToDo) {
   return waitMinimum(
     client
       .post("/", todo)
