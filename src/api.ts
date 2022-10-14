@@ -5,12 +5,10 @@ import { parseJSON } from "date-fns"
 
 const MIN_DELAY = 1000
 
-async function waitMinimum<T>(fn: Promise<T> | (() => Promise<T>), time: number) {
-  const rx = await Promise.all([
-    new Promise((resolve) => setTimeout(resolve, time)),
-    typeof fn === "function" ? fn() : fn,
-  ])
-  return rx[1]
+async function waitMinimum<T>(fn: Promise<T> | (() => Promise<T>), time: number): Promise<T> {
+  return Promise.all([new Promise((resolve) => setTimeout(resolve, time)), typeof fn === "function" ? fn() : fn]).then(
+    (rx) => rx[1]
+  )
 }
 
 function rejectError(e: Error) {
