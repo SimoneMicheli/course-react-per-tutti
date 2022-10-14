@@ -1,7 +1,7 @@
 import React, { PropsWithChildren } from "react"
 
 interface ErrorWrapperProps {
-  error: string | null
+  error?: string
   action?: JSX.Element
 }
 

@@ -1,20 +1,21 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import "./ListToDo.css"
 import AddToDo from "../components/AddToDo"
 import ToDoList from "../components/ToDoList"
 import * as Models from "../models"
 import FilterMenu from "../components/FilterMenu"
 import PieChart from "../components/PieChart"
-import { createToDo, deleteMultipleToDo, deleteToDo, getToDoList, updateToDo } from "../api"
 import ErrorWrapper from "../components/ErrorWrapper"
-
-function filterCompleted(todoList: Array<Models.ToDo>) {
-  return todoList.filter((todo) => todo.completed === true)
-}
-
-function filterNotCompleted(todoList: Array<Models.ToDo>) {
-  return todoList.filter((todo) => todo.completed === false)
-}
+import { useAppDispatch, useAppSelector } from "../store/store"
+import {
+  getToDoListAction,
+  filter as filterAction,
+  addToDoAction,
+  deleteToDoAction,
+  toggleCompleteAction,
+  deleteCompletedToDoAction,
+} from "../store/listSlice"
+import { filterCompleted, filterNotCompleted } from "../models"
 
 function filterToDos(todoList: Array<Models.ToDo>, filter: Models.Filter) {
   switch (filter) {
@@ -29,80 +30,41 @@ function filterToDos(todoList: Array<Models.ToDo>, filter: Models.Filter) {
 }
 
 function ListToDo() {
-  const [toDos, setToDos] = useState<Array<Models.ToDo> | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [filter, setFilter] = useState<Models.Filter>("ALL")
-  const [updatingItemsIndex, setUpdatingItemsIndex] = useState<number[]>([])
+  const dispatch = useAppDispatch()
+  const toDos = useAppSelector((state) => state.list.todos)
+  const error = useAppSelector((state) => state.list.error)
+  const filter = useAppSelector((state) => state.list.filter)
+  const abortController = useRef<ReturnType<ReturnType<typeof getToDoListAction>>>()
 
   const onAdd = (title: string) => {
-    const prevToDos = toDos
-    setToDos(null)
-    setError(null)
-    createToDo({ title, completed: false, created_at: new Date() })
-      .then((todo) => setToDos(prevToDos ? [...prevToDos, todo] : null))
-      .catch((e) => setError(e))
+    dispatch(addToDoAction({ title, completed: false, created_at: new Date() }))
   }
 
   const onToDoClick = async (itemIndex: number) => {
     if (!toDos) return
 
-    try {
-      // make a copy of the updated todo
-      const requiredUpdate = { ...toDos[itemIndex], completed: !toDos[itemIndex].completed }
-      requiredUpdate.completed_at = requiredUpdate.completed ? new Date() : undefined
-      // add the position of the currently updating item to the array
-      setUpdatingItemsIndex((oldArray) => [...oldArray, itemIndex])
-      // send the updated item to the server and get the response
-      const updated = await updateToDo(requiredUpdate)
-      // update the list of to do with the updated status
-      setToDos((oldToDo) => {
-        // todos cant be used here because we need the last update, otherwise the risk is that the todo list
-        // has been updated while the request was in progress to the server, in this case the list status
-        // is overwritten with an old state (when the request was initiated)
-        if (!oldToDo) return oldToDo
-        return [...oldToDo.slice(0, itemIndex), updated, ...oldToDo.slice(itemIndex + 1)]
-      })
-    } catch (e) {
-      setError(e as string)
-    } finally {
-      // remove the position of the current item from the updating index
-      setUpdatingItemsIndex((oldArray) => {
-        // search te position of the current item index in the updating item array
-        const index = oldArray.findIndex((item) => item === itemIndex)
-        return [...oldArray.slice(0, index), ...oldArray.slice(index + 1, oldArray.length)]
-      })
-    }
+    dispatch(toggleCompleteAction(toDos[itemIndex]))
   }
 
   const onDelete = async (index: number) => {
-    try {
-      const prevToDos = toDos
-      setToDos(prevToDos ? [...prevToDos.slice(0, index), ...prevToDos.slice(index + 1)] : null)
-      await deleteToDo(toDos?.[index])
-    } catch (e) {
-      setError(e as string)
-    }
+    const todo = toDos?.[index]
+    if (todo) dispatch(deleteToDoAction(todo))
   }
 
   const onCleanup = useCallback(
-    async (e: React.MouseEvent<HTMLButtonElement>) => {
+    (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault()
-      if (!toDos) return
-      const prevToDos = toDos
-      setToDos(null)
-      try {
-        await deleteMultipleToDo(filterCompleted(prevToDos))
-        setToDos(filterNotCompleted(prevToDos))
-      } catch (e) {
-        setError(e as string)
-      }
+      dispatch(deleteCompletedToDoAction())
     },
-    [toDos]
+    [dispatch]
   )
 
-  const onFilterChange = useCallback((filter: Models.Filter) => {
-    setFilter(filter)
-  }, [])
+  const onFilterChange = useCallback(
+    (filter: Models.Filter) => {
+      dispatch(filterAction(filter))
+    },
+    [dispatch]
+  )
 
   const completedList = useMemo(() => (toDos ? filterToDos(toDos, "COMPLETED") : []), [toDos])
   const filteredList = useMemo(() => (toDos ? filterToDos(toDos, filter) : []), [toDos, filter])
@@ -112,26 +74,22 @@ function ListToDo() {
    * oterwise, the below useEffect will be called at every render because the loadToDo reference change
    */
   const loadToDo = useCallback(() => {
-    setToDos(null)
-    setError(null)
-    getToDoList()
-      .then((data) => {
-        setToDos(data)
-      })
-      .catch((e) => {
-        setError(e)
-      })
-  }, [])
+    abortController.current?.abort()
+    abortController.current = dispatch(getToDoListAction())
+  }, [abortController, dispatch])
 
   useEffect(() => {
-    loadToDo()
-  }, [loadToDo])
+    abortController.current = dispatch(getToDoListAction())
+    return () => {
+      abortController.current?.abort()
+    }
+  }, [dispatch])
 
   return (
     <ErrorWrapper
       error={error}
       action={
-        <button className="btn btn-primary" onClick={() => loadToDo()}>
+        <button className="btn btn-primary" onClick={loadToDo}>
           Aggiorna
         </button>
       }
@@ -163,13 +121,7 @@ function ListToDo() {
       <section className="row justify-content-center mb-4">
         <div className="col-12 col-md-8">
           <hr />
-          <ToDoList
-            items={filteredList}
-            onClick={onToDoClick}
-            onDelete={onDelete}
-            isLoading={!toDos && !error}
-            updatingItemsIndex={updatingItemsIndex}
-          />
+          <ToDoList items={filteredList} onClick={onToDoClick} onDelete={onDelete} isLoading={!toDos && !error} />
         </div>
       </section>
 
