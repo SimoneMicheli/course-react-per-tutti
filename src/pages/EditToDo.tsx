@@ -83,7 +83,6 @@ export default function EditToDoPage() {
   const navigate = useNavigate()
 
   async function onSubmit(todo: ToDo) {
-    console.log(todo)
     await updateToDo(todo)
     navigate("/")
   }

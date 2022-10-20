@@ -1,6 +1,7 @@
 import { dispatch } from "./store/store"
 import { addRemoteEvent, deleteRemoteEvent, updateRemoteEvent } from "./store/listSlice"
 import { parseToDo, RemoteEvents } from "./models"
+import { toast } from "react-toastify"
 
 export type ToDoEventSource = EventSource & {
   addEvent: (event: RemoteEvents, callback: (event: Event) => void) => void
@@ -28,12 +29,18 @@ export function registerEvent(event: RemoteEvents, callback: (this: EventSource,
 
 export function registerAllEvents() {
   registerEvent("ADD", (event) => {
-    dispatch(addRemoteEvent(parseToDo(JSON.parse(event.data))))
+    const todo = parseToDo(JSON.parse(event.data))
+    toast.success(`Aggiunto ${todo.title}`)
+    dispatch(addRemoteEvent(todo))
   })
   registerEvent("UPDATE", (event) => {
-    dispatch(updateRemoteEvent(parseToDo(JSON.parse(event.data))))
+    const todo = parseToDo(JSON.parse(event.data))
+    toast.success(`Aggiornato ${todo.title}`)
+    dispatch(updateRemoteEvent(todo))
   })
   registerEvent("DELETE", (event) => {
-    dispatch(deleteRemoteEvent(parseToDo(JSON.parse(event.data))))
+    const todo = parseToDo(JSON.parse(event.data))
+    toast.success(`Eliminato ${todo.title}`)
+    dispatch(deleteRemoteEvent(todo))
   })
 }
