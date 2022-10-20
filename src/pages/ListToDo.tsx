@@ -37,7 +37,7 @@ function ListToDo() {
   const abortController = useRef<ReturnType<ReturnType<typeof getToDoListAction>>>()
 
   const onAdd = (title: string) => {
-    dispatch(addToDoAction({ title, completed: false, created_at: new Date() }))
+    dispatch(addToDoAction(Models.createToDoFromTitle(title)))
   }
 
   const onToDoClick = async (itemIndex: number) => {

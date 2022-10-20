@@ -6,6 +6,7 @@ import router from "./pages/router"
 import { Provider } from "react-redux"
 import { RouterProvider } from "react-router-dom"
 import { store } from "./store/store"
+import { registerAllEvents } from "./sse"
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement)
 root.render(
@@ -15,6 +16,8 @@ root.render(
     </Provider>
   </React.StrictMode>
 )
+
+registerAllEvents()
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
