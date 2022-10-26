@@ -7,11 +7,10 @@ interface ToDoListProps {
   onClick: (item: number) => void
   onDelete: (item: number) => void
   isLoading: boolean
-  updatingItemsIndex: number[]
 }
 
 export default function ToDoList(props: ToDoListProps) {
-  const { items, onClick, onDelete, isLoading, updatingItemsIndex } = props
+  const { items, onClick, onDelete, isLoading } = props
 
   /**
    * Store number of items before loding from server
@@ -48,7 +47,7 @@ export default function ToDoList(props: ToDoListProps) {
   return (
     <ul className="list-group">
       {items.map((item, index) =>
-        updatingItemsIndex.includes(index) ? (
+        item.requestId ? (
           <ItemPlaceholder index={index} key={index} />
         ) : (
           <ToDoElement todo={item} index={index} key={index} onClick={onClick} onDelete={onDelete} />
