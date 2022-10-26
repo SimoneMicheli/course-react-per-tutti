@@ -1,10 +1,10 @@
-import { ErrorMessage, Field, Form, Formik, useField } from "formik"
+import { Form, Formik } from "formik"
 import React from "react"
 import { Link, LoaderFunctionArgs, useLoaderData, useRouteError, defer, Await, useNavigate } from "react-router-dom"
 import { getToDo, updateToDo } from "../api"
 import { ToDo } from "../models"
-import cn from "classnames"
 import * as yup from "yup"
+import CustomField from "../components/CustomField"
 
 const toDoSchema = yup.object({
   title: yup.string().required().min(3).max(10),
@@ -57,18 +57,6 @@ function Loader() {
         </div>
       </form>
     </section>
-  )
-}
-
-function CustomField({ name, as }: { name: string; as: string }) {
-  const [_, meta] = useField(name)
-  return (
-    <>
-      <Field as={as} className={cn("form-control", { "is-invalid": meta.error })} name={name} />
-      <div className="invalid-feedback">
-        <ErrorMessage name={name} />
-      </div>
-    </>
   )
 }
 
