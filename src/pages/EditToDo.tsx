@@ -1,8 +1,21 @@
-import { Field, Form, Formik } from "formik"
+import { ErrorMessage, Field, Form, Formik, useField } from "formik"
 import React from "react"
 import { Link, LoaderFunctionArgs, useLoaderData, useRouteError, defer, Await, useNavigate } from "react-router-dom"
 import { getToDo, updateToDo } from "../api"
 import { ToDo } from "../models"
+import cn from "classnames"
+import * as yup from "yup"
+
+const toDoSchema = yup.object({
+  title: yup.string().required().min(3).max(10),
+  completed: yup.boolean().required(),
+  created_at: yup.date().required(),
+  completed_at: yup.date().when("completed", {
+    is: true,
+    then: (schema) => schema.required("completed_at is a required field if completed is set to true"),
+  }),
+  description: yup.string(),
+})
 
 export async function editLoader({ params }: LoaderFunctionArgs) {
   if (!params.id) return Promise.reject(new Error("Invalid id"))
@@ -47,20 +60,32 @@ function Loader() {
   )
 }
 
+function CustomField({ name, as }: { name: string; as: string }) {
+  const [_, meta] = useField(name)
+  return (
+    <>
+      <Field as={as} className={cn("form-control", { "is-invalid": meta.error })} name={name} />
+      <div className="invalid-feedback">
+        <ErrorMessage name={name} />
+      </div>
+    </>
+  )
+}
+
 function EditToDo({ todo, onSubmit }: { todo: ToDo; onSubmit: (todo: ToDo) => void | Promise<unknown> }) {
   return (
     <section className="row justify-content-center">
-      <Formik initialValues={todo} onSubmit={onSubmit}>
+      <Formik initialValues={todo} onSubmit={onSubmit} validationSchema={toDoSchema}>
         {({ isSubmitting }) => (
           <Form className="col-12 col-md-6">
             <fieldset disabled={isSubmitting}>
               <div>
                 <label className="form-label">Titolo</label>
-                <Field type="text" className="form-control" name="title" />
+                <CustomField name="title" as="input" />
               </div>
               <div>
                 <label className="form-label mt-2">Descrizione</label>
-                <Field as="textarea" className="form-control" name="description" />
+                <CustomField as="textarea" name="description" />
               </div>
               <div className="d-flex justify-content-end mt-4">
                 <Link to="/" className="btn btn-link">
