@@ -1,7 +1,6 @@
 /* eslint-disable prefer-promise-reject-errors */
 import axios from "axios"
-import { NewToDo, ToDo } from "./models"
-import { parseJSON } from "date-fns"
+import { parseToDo, ToDo } from "./models"
 
 const MIN_DELAY = 1000
 
@@ -15,16 +14,8 @@ function rejectError(e: Error) {
   return Promise.reject(e.message)
 }
 
-function parseToDo(todo: ToDo) {
-  return {
-    ...todo,
-    created_at: parseJSON(todo.created_at),
-    completed_at: todo.completed_at ? parseJSON(todo.completed_at) : undefined,
-  }
-}
-
 const client = axios.create({
-  baseURL: "http://localhost:5000/api/todo/",
+  baseURL: process.env.REACT_APP_API_BASE_URL,
   timeout: 5000,
 })
 
@@ -40,7 +31,7 @@ export function getToDoList(signal?: AbortSignal) {
   )
 }
 
-export function createToDo(todo: NewToDo) {
+export function createToDo(todo: ToDo) {
   return waitMinimum(
     client
       .post("/", todo)
