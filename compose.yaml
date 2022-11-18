@@ -1,0 +1,23 @@
+services:
+  frontend:
+    image: react-frontend:4.0
+    networks:
+      - react-net
+  backend:
+    image: react-backend:4.0
+    networks:
+      - react-net
+  reverse_proxy:
+    image: nginx:1.23-alpine
+    networks:
+      - react-net
+    ports:
+      - "80:80"
+    volumes:
+      - type: bind
+        source: ./nginx.conf
+        target: /etc/nginx/conf.d/default.conf
+        read_only: true
+
+networks:
+  react-net:

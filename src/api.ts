@@ -15,7 +15,7 @@ function rejectError(e: Error) {
 }
 
 const client = axios.create({
-  baseURL: "http://localhost:5000/api/todo/",
+  baseURL: process.env.REACT_APP_API_BASE_URL,
   timeout: 5000,
 })
 

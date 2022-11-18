@@ -21,7 +21,7 @@ export default function initSSE(url: string): EventSource {
   return eventSource
 }
 
-const sse = initSSE("http://localhost:5000/api/todo/events")
+const sse = initSSE(process.env.REACT_APP_API_BASE_URL + "/events")
 
 export function registerEvent(event: RemoteEvents, callback: (this: EventSource, event: MessageEvent) => void) {
   sse.addEventListener(event, callback)
